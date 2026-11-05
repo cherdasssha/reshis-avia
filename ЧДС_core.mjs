@@ -40,15 +40,15 @@ export function asNumber(value, label) {
 export function validateData(forecasts, routes) {
   if (!forecasts.length || !routes.length) throw new Error('Один из файлов пуст.');
   for (const key of ['route', 'date', 'seats', '0.5_base_demand']) {
-    if (!(key in forecasts[0])) throw new Error(`В my_forecast.csv отсутствует столбец ${key}.`);
+    if (!(key in forecasts[0])) throw new Error(`В ЧДС_my_forecast.csv отсутствует столбец ${key}.`);
   }
   for (const key of ['route', 'base_price', 'price_sensitivity', 'cost_per_passenger']) {
-    if (!(key in routes[0])) throw new Error(`В routes.csv отсутствует столбец ${key}.`);
+    if (!(key in routes[0])) throw new Error(`В ЧДС_routes.csv отсутствует столбец ${key}.`);
   }
   const routeMap = new Map(routes.map(row => [row.route, row]));
   const seen = new Set();
   forecasts.forEach((row, idx) => {
-    if (!routeMap.has(row.route)) throw new Error(`Для маршрута ${row.route} нет параметров в routes.csv.`);
+    if (!routeMap.has(row.route)) throw new Error(`Для маршрута ${row.route} нет параметров в ЧДС_routes.csv.`);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(row.date)) throw new Error(`Некорректная дата в строке ${idx + 2}: ${row.date}`);
     if (seen.has(row.route + '|' + row.date)) throw new Error(`Повторение рейса ${row.route} за ${row.date}`);
     seen.add(row.route + '|' + row.date);

@@ -27,11 +27,11 @@
     <div>
       <div class="section-kicker">01 / ДАННЫЕ</div>
       <h2 id="data-title">Подключение прогноза</h2>
-      <p class="muted">Прогноз из этапа ИИ и справочник маршрутов уже подключены. Если понадобится, можно выбрать другие файлы <strong>my_forecast.csv</strong> и <strong>routes.csv</strong> вручную.</p>
+      <p class="muted">Прогноз из этапа ИИ и справочник маршрутов уже подключены. Если понадобится, можно выбрать другие файлы <strong>ЧДС_my_forecast.csv</strong> и <strong>ЧДС_routes.csv</strong> вручную.</p>
     </div>
     <div class="upload-controls">
-      <label class="upload" for="forecast-file"><span>1</span><span class="upload-text">Прогноз <strong>my_forecast.csv</strong><small id="forecast-name">Выбрать файл</small></span><input id="forecast-file" type="file" accept=".csv,text/csv"></label>
-      <label class="upload" for="routes-file"><span>2</span><span class="upload-text">Маршруты <strong>routes.csv</strong><small id="routes-name">Выбрать файл</small></span><input id="routes-file" type="file" accept=".csv,text/csv"></label>
+      <label class="upload" for="forecast-file"><span>1</span><span class="upload-text">Прогноз <strong>ЧДС_my_forecast.csv</strong><small id="forecast-name">Выбрать файл</small></span><input id="forecast-file" type="file" accept=".csv,text/csv"></label>
+      <label class="upload" for="routes-file"><span>2</span><span class="upload-text">Маршруты <strong>ЧДС_routes.csv</strong><small id="routes-name">Выбрать файл</small></span><input id="routes-file" type="file" accept=".csv,text/csv"></label>
     </div>
     <div class="data-status" id="status" role="status" aria-live="polite"><span class="status-light"></span><span>Загружаем прогноз и маршруты…</span></div>
   </section>
@@ -115,15 +115,15 @@ function asNumber(value, label) {
 function validateData(forecasts, routes) {
   if (!forecasts.length || !routes.length) throw new Error('Один из файлов пуст.');
   for (const key of ['route', 'date', 'seats', '0.5_base_demand']) {
-    if (!(key in forecasts[0])) throw new Error(`В my_forecast.csv отсутствует столбец ${key}.`);
+    if (!(key in forecasts[0])) throw new Error(`В ЧДС_my_forecast.csv отсутствует столбец ${key}.`);
   }
   for (const key of ['route', 'base_price', 'price_sensitivity', 'cost_per_passenger']) {
-    if (!(key in routes[0])) throw new Error(`В routes.csv отсутствует столбец ${key}.`);
+    if (!(key in routes[0])) throw new Error(`В ЧДС_routes.csv отсутствует столбец ${key}.`);
   }
   const routeMap = new Map(routes.map(row => [row.route, row]));
   const seen = new Set();
   forecasts.forEach((row, idx) => {
-    if (!routeMap.has(row.route)) throw new Error(`Для маршрута ${row.route} нет параметров в routes.csv.`);
+    if (!routeMap.has(row.route)) throw new Error(`Для маршрута ${row.route} нет параметров в ЧДС_routes.csv.`);
     if (!/^\d{4}-\d{2}-\d{2}$/.test(row.date)) throw new Error(`Некорректная дата в строке ${idx + 2}: ${row.date}`);
     if (seen.has(row.route + '|' + row.date)) throw new Error(`Повторение рейса ${row.route} за ${row.date}`);
     seen.add(row.route + '|' + row.date);
@@ -303,14 +303,14 @@ $('optimal-btn').addEventListener('click',()=>{$('ticket-price').value=$('optima
 $('flight-form').addEventListener('submit',e=>e.preventDefault());
 
 if(location.protocol!=='file:') {
-  Promise.all(['my_forecast.csv','routes.csv'].map(async filename => {
+  Promise.all(['ЧДС_my_forecast.csv','ЧДС_routes.csv'].map(async filename => {
     const r=await fetch('./'+filename);if(!r.ok)throw new Error(filename+' не найден');return r.text();
   })).then(([forecastCsv,routesCsv])=>{
     filesState.forecast=parseCSV(forecastCsv);filesState.routes=parseCSV(routesCsv);
     validateData(filesState.forecast,filesState.routes);
     forecasts=filesState.forecast;routes=filesState.routes;
-    $('forecast-name').textContent='my_forecast.csv · автоматически';
-    $('routes-name').textContent='routes.csv · автоматически';
+    $('forecast-name').textContent='ЧДС_my_forecast.csv · автоматически';
+    $('routes-name').textContent='ЧДС_routes.csv · автоматически';
     setEnabled(true);refreshRoutes();
   }).catch(()=>{});
 }
@@ -322,8 +322,8 @@ try {
   validateData(filesState.forecast, filesState.routes);
   forecasts = filesState.forecast;
   routes = filesState.routes;
-  $('forecast-name').textContent = 'my_forecast.csv · встроенный файл';
-  $('routes-name').textContent = 'routes.csv · встроенный файл';
+  $('forecast-name').textContent = 'ЧДС_my_forecast.csv · встроенный файл';
+  $('routes-name').textContent = 'ЧДС_routes.csv · встроенный файл';
   setEnabled(true);
   refreshRoutes();
 } catch(error) {
